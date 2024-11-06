@@ -110,9 +110,10 @@ export const CabinetPage: React.FC<CabinetPageProps> = ({
     email: "vladislav@gmail.com",
     phone: "8-921-740-15-19",
     rating: 999,
+    availableSlots: [],
     interviewHistory: [
         {
-         data: "data",
+         date: "data",
          summary: "summary",
          rating: 10   
         }
