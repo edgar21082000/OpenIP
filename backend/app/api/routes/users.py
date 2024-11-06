@@ -13,7 +13,10 @@ from app.api.deps import (
 from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
 from app.models import (
+    Interview,
+    InterviewStatus,
     Message,
+    Role,
     UpdatePassword,
     User,
     UserCreate,
@@ -221,3 +224,53 @@ def delete_user(
     session.delete(user)
     session.commit()
     return Message(message="User deleted successfully")
+
+
+@router.get("/role/{user_login}")
+def get_role(*, current_user: CurrentUser, user_login: str) -> Any:
+    """
+    Get user's role
+    """
+    if current_user.login != user_login:
+        raise HTTPException(
+            status_code=403, detail="Bad access"
+        )
+    return {
+            'role': current_user.role
+        }
+
+
+@router.get("/history/{user_login}")
+def get_history(*, session: SessionDep, current_user: CurrentUser, user_login: str) -> Any:
+    """
+    Get user's history of interviews
+    """
+    if current_user.role in [Role.applicant, Role.interviewer]:
+        if current_user.login != user_login:
+            raise HTTPException(
+                status_code=403, detail="Bad access"
+            )
+
+    user = session.get(User, user_login)
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="The user with this login does not exist in the system",
+        )
+
+    if current_user.role == Role.hr and user.role == Role.interviewer:
+        raise HTTPException(
+                status_code=403, detail="Bad access"
+            )
+
+    query = select(Interview).where(
+                Interview.interviewer_login == user_login,
+                Interview.status == InterviewStatus.finished
+            ).order_by(Interview.event_datetime.desc())
+    interviews: list[Interview] = session.exec(query).all()
+    return [{
+                'event_datetime': payload.event_datetime,
+                'link': payload.link,
+                'stack_tag': payload.stack_tag,
+                'mark': payload.mark
+            } for payload in interviews]
