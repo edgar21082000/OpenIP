@@ -37,7 +37,7 @@ class UserBase(SQLModel):
     class Config:
         arbitrary_types_allowed = True
 
-    login: str = Field(min_length=4, max_length=255, index=True, primary_key=True)
+    id: str = Field(min_length=4, max_length=255, index=True, primary_key=True)
     email: EmailStr = Field(unique=True, index=True, max_length=255)
     full_name: str | None = Field(default=None, max_length=255)
     role: Role = Field(sa_column=Column(SQLEnum(Role), nullable=False))
@@ -81,7 +81,7 @@ class StackTag(SQLModel, table=True):
 
 class InterviewSlot(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    user_login: str = Field(foreign_key='user.login', nullable=False)
+    user_id: str = Field(foreign_key='user.id', nullable=False)
     max_applicant: int = Field(default=1, nullable=False)
     from_datetime: datetime = Field(default_factory=datetime.utcnow)
     to_datetime: datetime = Field(nullable=False)
@@ -92,8 +92,8 @@ class Interview(SQLModel, table=True):
         arbitrary_types_allowed = True
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    interviewer_login: str = Field(foreign_key='user.login')
-    applicant_login: str = Field(foreign_key='user.login')
+    interviewer_id: str = Field(foreign_key='user.id')
+    applicant_id: str = Field(foreign_key='user.id')
     link: str = Field(min_length=8, max_length=255)
     stack_tag: str = Field(foreign_key='stacktag.tag_code')
     event_datetime: datetime = Field(default_factory=datetime.utcnow)

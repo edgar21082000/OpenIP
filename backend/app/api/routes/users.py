@@ -226,12 +226,12 @@ def delete_user(
     return Message(message="User deleted successfully")
 
 
-@router.get("/role/{user_login}")
-def get_role(*, current_user: CurrentUser, user_login: str) -> Any:
+@router.get("/role/{user_id}")
+def get_role(*, current_user: CurrentUser, user_id: str) -> Any:
     """
     Get user's role
     """
-    if current_user.login != user_login:
+    if current_user.id != user_id:
         raise HTTPException(
             status_code=403, detail="Bad access"
         )
@@ -240,18 +240,18 @@ def get_role(*, current_user: CurrentUser, user_login: str) -> Any:
         }
 
 
-@router.get("/history/{user_login}")
-def get_history(*, session: SessionDep, current_user: CurrentUser, user_login: str) -> Any:
+@router.get("/history/{user_id}")
+def get_history(*, session: SessionDep, current_user: CurrentUser, user_id: str) -> Any:
     """
     Get user's history of interviews
     """
     if current_user.role in [Role.applicant, Role.interviewer]:
-        if current_user.login != user_login:
+        if current_user.user_id != user_id:
             raise HTTPException(
                 status_code=403, detail="Bad access"
             )
 
-    user = session.get(User, user_login)
+    user = session.get(User, user_id)
     if not user:
         raise HTTPException(
             status_code=404,
@@ -264,7 +264,7 @@ def get_history(*, session: SessionDep, current_user: CurrentUser, user_login: s
             )
 
     query = select(Interview).where(
-                Interview.interviewer_login == user_login,
+                Interview.interviewer_id == user_id,
                 Interview.status == InterviewStatus.finished
             ).order_by(Interview.event_datetime.desc())
     interviews: list[Interview] = session.exec(query).all()
