@@ -50,10 +50,8 @@ class UserCreate(UserBase):
     password: str = Field(min_length=8, max_length=40)
 
 
-class UserRegister(SQLModel):
-    email: EmailStr = Field(max_length=255)
-    password: str = Field(min_length=8, max_length=40)
-    full_name: str | None = Field(default=None, max_length=255)
+class UserRegister(UserCreate):
+    pass
 
 
 # Properties to receive via API on update, all are optional
@@ -84,8 +82,9 @@ class StackTag(SQLModel, table=True):
 class InterviewSlot(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     user_login: str = Field(foreign_key='user.login', nullable=False)
-    event_datetime: datetime = Field(default_factory=datetime.utcnow)
     max_applicant: int = Field(default=1, nullable=False)
+    from_datetime: datetime = Field(default_factory=datetime.utcnow)
+    to_datetime: datetime = Field(nullable=False)
 
 
 class Interview(SQLModel, table=True):
@@ -96,6 +95,8 @@ class Interview(SQLModel, table=True):
     interviewer_login: str = Field(foreign_key='user.login')
     applicant_login: str = Field(foreign_key='user.login')
     link: str = Field(min_length=8, max_length=255)
+    stack_tag: str = Field(foreign_key='stacktag.tag_code')
+    event_datetime: datetime = Field(default_factory=datetime.utcnow)
     type: InterviewType = Field(sa_column=Column(SQLEnum(InterviewType), nullable=False))
     status: InterviewStatus =  Field(sa_column=Column(SQLEnum(InterviewStatus), nullable=False))
     mark: InterviewMark | None = Field(sa_column=Column(SQLEnum(InterviewStatus), default=None))
