@@ -76,7 +76,7 @@ function SignUp() {
         >
           <Image
             src={Logo}
-            alt="FastAPI logo"
+            alt="OpenIP logo"
             height="auto"
             maxW="2xs"
             alignSelf="center"

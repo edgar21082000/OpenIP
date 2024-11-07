@@ -16,8 +16,8 @@ import {
 import { useMemo, useState } from "react";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { z } from "zod";
-import Navbar from "../../components/Common/Navbar";
-import AddItem from "../../components/Items/AddItem";
+import Navbar from "../../components/Common/Navbar.tsx";
+import AddItem from "../../components/Items/AddItem.tsx";
 import { PaginationFooter } from "../../components/Common/PaginationFooter.tsx";
 import SelectItem from "../../components/Items/SelectItem.tsx";
 import { UserPublic } from "../../client/models.ts";
