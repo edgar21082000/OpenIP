@@ -78,9 +78,10 @@ services:
       - ./backend/app:/app/app
 
   prestart:
-    image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
+    # image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
     build:
       context: ./backend
+      dockerfile: Dockerfile
     networks:
       - traefik-public
       - default
@@ -113,7 +114,7 @@ services:
       - SENTRY_DSN=${SENTRY_DSN}
 
   backend:
-    image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
+    # image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
     restart: always
     networks:
       - traefik-public
@@ -153,6 +154,7 @@ services:
 
     build:
       context: ./backend
+      dockerfile: Dockerfile
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik-public
@@ -171,8 +173,20 @@ services:
       # Enable redirection for HTTP and HTTPS
       - traefik.http.routers.${STACK_NAME?Variable not set}-backend-http.middlewares=https-redirect
 
+  codeshare_backend:
+    restart: always
+    build:
+      context: ./codeshare_backend
+      dockerfile: Dockerfile
+    container_name: codeshare_backend
+    ports:
+      - "8001:8001"
+    networks:
+      - traefik-public
+      - default
+
   frontend:
-    image: '${DOCKER_IMAGE_FRONTEND?Variable not set}:${TAG-latest}'
+    # image: '${DOCKER_IMAGE_FRONTEND?Variable not set}:${TAG-latest}'
     restart: always
     networks:
       - traefik-public
@@ -199,6 +213,20 @@ services:
 
       # Enable redirection for HTTP and HTTPS
       - traefik.http.routers.${STACK_NAME?Variable not set}-frontend-http.middlewares=https-redirect
+
+  codeshare_frontend:
+    build:
+      context: ./codeshare_frontend
+      dockerfile: Dockerfile
+    container_name: codeshare_frontend
+    ports:
+      - "3000:80"
+    restart: always
+    networks:
+      - traefik-public
+      - default
+    depends_on:
+      - codeshare_backend
 volumes:
   app-db-data:
 
