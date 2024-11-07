@@ -99,7 +99,7 @@ class Interview(SQLModel, table=True):
     event_datetime: datetime = Field(default_factory=datetime.utcnow)
     type: InterviewType = Field(sa_column=Column(SQLEnum(InterviewType), nullable=False))
     status: InterviewStatus =  Field(sa_column=Column(SQLEnum(InterviewStatus), nullable=False))
-    mark: InterviewMark | None = Field(sa_column=Column(SQLEnum(InterviewStatus), default=None))
+    mark: InterviewMark | None = Field(sa_column=Column(SQLEnum(InterviewMark), default=None))
     comments: str = Field(min_length=40)
 
 

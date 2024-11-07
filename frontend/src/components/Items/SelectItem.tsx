@@ -23,17 +23,18 @@ import {
 import { useState, useMemo } from "react";
 
 interface InterviewItem {
-  Email: string;
+  slot_id: number;
+  email: string;
   interviewDate: string;
   duration: number;
   technology: string;
 }
 
 const mockItems: InterviewItem[] = [
-  { Email: "john.doe@example.com", interviewDate: "2023-10-01T09:00:00Z", duration: 2, technology: "python" },
-  { Email: "alice.doe@example.com", interviewDate: "2023-09-25T10:00:00Z", duration: 1.5, technology: "python" },
-  { Email: "charlie.doe@example.com", interviewDate: "2023-09-29T14:00:00Z", duration: 1, technology: "go" },
-  { Email: "eve.doe@example.com", interviewDate: "2023-09-28T11:00:00Z", duration: 2.5, technology: "algo" },
+  { slot_id: 1, email: "john.doe@example.com", interviewDate: "2023-10-01T09:00:00Z", duration: 2, technology: "python" },
+  { slot_id: 2, email: "alice.doe@example.com", interviewDate: "2023-09-25T10:00:00Z", duration: 1.5, technology: "python" },
+  { slot_id: 3, email: "charlie.doe@example.com", interviewDate: "2023-09-29T14:00:00Z", duration: 1, technology: "go" },
+  { slot_id: 4, email: "eve.doe@example.com", interviewDate: "2023-09-28T11:00:00Z", duration: 2.5, technology: "algo" },
 ];
 
 interface SelectItemProps {
@@ -52,7 +53,7 @@ const SelectItem = ({ isOpen, onClose }: SelectItemProps) => {
   const filteredItems = useMemo(() => {
     return mockItems.filter(item => {
       return (
-        (!filters.email || item.Email.includes(filters.email)) &&
+        (!filters.email || item.email.includes(filters.email)) &&
         (!filters.date || new Date(item.interviewDate).toLocaleDateString() === new Date(filters.date).toLocaleDateString()) &&
         (!filters.technology || item.technology === filters.technology)
       );
@@ -114,7 +115,7 @@ const SelectItem = ({ isOpen, onClose }: SelectItemProps) => {
               <Tbody>
                 {filteredItems.map((item, index) => (
                   <Tr key={index}>
-                    <Td>{item.Email}</Td>
+                    <Td>{item.email}</Td>
                     <Td>{new Date(item.interviewDate).toLocaleString()}</Td>
                     <Td>{item.duration}</Td>
                     <Td><Badge colorScheme="blue">{item.technology}</Badge></Td>

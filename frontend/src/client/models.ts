@@ -101,3 +101,11 @@ export type ValidationError = {
   msg: string
   type: string
 }
+
+
+export type ScoreBoardRecord = {
+  mail: string
+  status: boolean
+  stack: string
+  mark: number
+}
