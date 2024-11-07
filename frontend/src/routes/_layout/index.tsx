@@ -8,8 +8,10 @@ import {
   HStack,
   Heading,
   Divider,
+  Image
 } from '@chakra-ui/react';
 import useAuth from "../../hooks/useAuth"
+import ProfileIcon from '../../../public/assets/images/cat.jpg'
 
 export const Route = createFileRoute("/_layout/")({
   component: Dashboard,
@@ -19,7 +21,6 @@ function Dashboard() {
   const { user: currentUser } = useAuth()
 
   const userData = {
-    type: 'interviewer', // может быть 'Интервьер' или 'Собеседующийся'
     technologies: [
       { name: 'algo', count: 5 },
       { name: 'c++', count: 3 },
@@ -39,12 +40,22 @@ function Dashboard() {
         Profile
       </Heading>
 
-      <Text fontSize="lg">{currentUser?.full_name}</Text>
-      <Text fontSize="lg">{currentUser?.email}</Text>
+      <HStack spacing={5} align="center">
+        <Image 
+          borderRadius="full"
+          boxSize="100px"
+          src={ProfileIcon}
+          alt="Profile Photo" 
+        />
+        <VStack align="start">
+          <Text fontSize="lg">{currentUser?.full_name}</Text>
+          <Text fontSize="lg">{currentUser?.email}</Text>
+        </VStack>
+      </HStack>
       
       <Divider my={4} />
 
-      <Text fontSize="lg" fontWeight="bold">{userData.type}</Text>
+      <Text fontSize="lg" fontWeight="bold">{currentUser?.role}</Text>
 
       <Divider my={4} />
 

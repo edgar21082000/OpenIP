@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { Container, Image, Text } from "@chakra-ui/react"
+import { Container, Image } from "@chakra-ui/react"
 import Logo from "/assets/images/fastapi-logo.svg"
 
 type MyPageProps = {

@@ -8,6 +8,7 @@ import {
   Image,
   Input,
   Link,
+  Select,
   Text,
 } from "@chakra-ui/react"
 import {
@@ -48,6 +49,7 @@ function SignUp() {
     mode: "onBlur",
     criteriaMode: "all",
     defaultValues: {
+      role: "applicant",
       email: "",
       full_name: "",
       password: "",
@@ -80,6 +82,23 @@ function SignUp() {
             alignSelf="center"
             mb={4}
           />
+          <FormControl id="role" isInvalid={!!errors.role}>
+            <FormLabel htmlFor="role" srOnly>
+              Role
+            </FormLabel>
+            <Select
+              id="role"
+              {...register("role", { required: "Role is required" })}
+              placeholder="Select role"
+            >
+              <option value="applicant">Applicant</option>
+              <option value="interviewer">Interviewer</option>
+              <option value="HR">HR</option>
+            </Select>
+            {errors.role && (
+              <FormErrorMessage>{errors.role.message}</FormErrorMessage>
+            )}
+          </FormControl>
           <FormControl id="full_name" isInvalid={!!errors.full_name}>
             <FormLabel htmlFor="full_name" srOnly>
               Full Name
