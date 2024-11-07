@@ -22,7 +22,7 @@ def get_free_slots(*, session: SessionDep, current_user: CurrentUser) -> Any:
     Get all free slot for interviewer.
     """
     query = select(InterviewSlot).where(
-                    InterviewSlot.user_login == current_user.login,
+                    InterviewSlot.user_id == current_user.id,
                     InterviewSlot.from_datetime >= datetime.utcnow())
     return session.exec(query).all()
 
@@ -49,7 +49,7 @@ def get_assigned_interview(*, session: SessionDep, current_user: CurrentUser) ->
     Get all assigned interviews
     """
     query = select(Interview).where(
-                Interview.interviewer_login == current_user.login,
+                Interview.interviewer_id == current_user.id,
                 Interview.status.in_(InterviewStatus.waiting, InterviewStatus.in_progress)
             ).order_by(Interview.event_datetime.desc())
     interviews: list[Interview] = session.exec(query).all()
