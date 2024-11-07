@@ -11,7 +11,8 @@ import {
   Select,
   VStack,
   Flex,
-  Badge
+  Badge,
+  Button
 } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
@@ -227,15 +228,50 @@ function Items() {
   const queryClient = useQueryClient()
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
 
+  // Функция для создания комнаты
+  const handleCreateRoom = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:8001/create_room", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to create room");
+      }
+      const data = await response.json();
+      if (data.room_id) {
+        // Открываем новую вкладку с комнатой
+        window.open(`http://127.0.0.1:3000/room/${data.room_id}`, "_blank");
+      }
+    } catch (error) {
+      console.error("Error creating room:", error);
+    }
+  };
+
   return (
     <Container maxW="full">
       <Heading size="lg" textAlign={{ base: "center", md: "left" }} pt={12}>
         Interviews
       </Heading>
 
-      <Flex py={8} gap={4}>
-        {currentUser?.role == 'interviewer' && <Navbar text={"Schedule interview"} addModalAs={AddItem} />}
-        {currentUser?.role == 'applicant' && <Navbar text={"Choose interview slot"} addModalAs={SelectItem} />}
+      <Flex py={8} gap={4} alignItems="center">
+        {currentUser?.role == 'interviewer' && (
+          <>
+            <Navbar text={"Schedule interview"} addModalAs={AddItem} />
+            <Button
+              onClick={handleCreateRoom}
+              colorScheme="teal"
+              variant="solid"
+            >
+              Create interview room
+            </Button>
+          </>
+        )}
+        {currentUser?.role == 'applicant' && (
+          <Navbar text={"Choose interview slot"} addModalAs={SelectItem} />
+        )}
       </Flex>
       <ItemsTable />
     </Container>
