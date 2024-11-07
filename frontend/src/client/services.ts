@@ -14,10 +14,7 @@ import type {
   UsersPublic,
   UserUpdate,
   UserUpdateMe,
-  ItemCreate,
-  ItemPublic,
-  ItemsPublic,
-  ItemUpdate,
+  ScoreBoardRecord,
 } from "./models"
 
 export type TDataLoginAccessToken = {
@@ -400,130 +397,24 @@ export class UtilsService {
   }
 }
 
-export type TDataReadItems = {
-  limit?: number
-  skip?: number
-}
-export type TDataCreateItem = {
-  requestBody: ItemCreate
-}
-export type TDataReadItem = {
-  id: string
-}
-export type TDataUpdateItem = {
-  id: string
-  requestBody: ItemUpdate
-}
-export type TDataDeleteItem = {
-  id: string
+export type TScoreBoardFilters = {
 }
 
-export class ItemsService {
+export class ScoreBoardService {
   /**
-   * Read Items
-   * Retrieve items.
-   * @returns ItemsPublic Successful Response
+   * Get Score board
+   * @returns ScoreBoardRecord[] Successful Response
    * @throws ApiError
    */
-  public static readItems(
-    data: TDataReadItems = {},
-  ): CancelablePromise<ItemsPublic> {
-    const { limit = 100, skip = 0 } = data
+  public static getScoreBoard(data: TScoreBoardFilters): CancelablePromise<ScoreBoardRecord[]> {
+    const { } = data
     return __request(OpenAPI, {
       method: "GET",
-      url: "/api/v1/items/",
-      query: {
-        skip,
-        limit,
-      },
-      errors: {
-        422: `Validation Error`,
-      },
-    })
-  }
-
-  /**
-   * Create Item
-   * Create new item.
-   * @returns ItemPublic Successful Response
-   * @throws ApiError
-   */
-  public static createItem(
-    data: TDataCreateItem,
-  ): CancelablePromise<ItemPublic> {
-    const { requestBody } = data
-    return __request(OpenAPI, {
-      method: "POST",
-      url: "/api/v1/items/",
-      body: requestBody,
-      mediaType: "application/json",
-      errors: {
-        422: `Validation Error`,
-      },
-    })
-  }
-
-  /**
-   * Read Item
-   * Get item by ID.
-   * @returns ItemPublic Successful Response
-   * @throws ApiError
-   */
-  public static readItem(data: TDataReadItem): CancelablePromise<ItemPublic> {
-    const { id } = data
-    return __request(OpenAPI, {
-      method: "GET",
-      url: "/api/v1/items/{id}",
-      path: {
-        id,
-      },
-      errors: {
-        422: `Validation Error`,
-      },
-    })
-  }
-
-  /**
-   * Update Item
-   * Update an item.
-   * @returns ItemPublic Successful Response
-   * @throws ApiError
-   */
-  public static updateItem(
-    data: TDataUpdateItem,
-  ): CancelablePromise<ItemPublic> {
-    const { id, requestBody } = data
-    return __request(OpenAPI, {
-      method: "PUT",
-      url: "/api/v1/items/{id}",
-      path: {
-        id,
-      },
-      body: requestBody,
-      mediaType: "application/json",
-      errors: {
-        422: `Validation Error`,
-      },
-    })
-  }
-
-  /**
-   * Delete Item
-   * Delete an item.
-   * @returns Message Successful Response
-   * @throws ApiError
-   */
-  public static deleteItem(data: TDataDeleteItem): CancelablePromise<Message> {
-    const { id } = data
-    return __request(OpenAPI, {
-      method: "DELETE",
-      url: "/api/v1/items/{id}",
-      path: {
-        id,
-      },
+      url: "/api/v1/scoreboard",
       errors: {
         422: `Validation Error`,
       },
     })
   }
 }
+
