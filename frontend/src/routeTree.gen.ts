@@ -20,7 +20,8 @@ import { Route as CabinetImport } from './routes/cabinet'
 import { Route as LayoutImport } from './routes/_layout'
 import { Route as LayoutIndexImport } from './routes/_layout/index'
 import { Route as LayoutSettingsImport } from './routes/_layout/settings'
-import { Route as LayoutItemsImport } from './routes/_layout/items'
+import { Route as LayoutItemsImport} from './routes/_layout/items'
+import { Route as LayoutScoreboardImport } from './routes/_layout/scoreboard'
 import { Route as LayoutAdminImport } from './routes/_layout/admin'
 
 // Create/Update Routes
@@ -50,11 +51,6 @@ const LoginRoute = LoginImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const CabinetRoute = CabinetImport.update({
-  path: '/cabinet',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const LayoutRoute = LayoutImport.update({
   id: '/_layout',
   getParentRoute: () => rootRoute,
@@ -75,6 +71,11 @@ const LayoutItemsRoute = LayoutItemsImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
+const LayoutScoreboardRoute = LayoutScoreboardImport.update({
+  path: '/scoreboard',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const LayoutAdminRoute = LayoutAdminImport.update({
   path: '/admin',
   getParentRoute: () => LayoutRoute,
@@ -86,10 +87,6 @@ declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/_layout': {
       preLoaderRoute: typeof LayoutImport
-      parentRoute: typeof rootRoute
-    }
-    '/cabinet': {
-      preLoaderRoute: typeof CabinetImport
       parentRoute: typeof rootRoute
     }
     '/login': {
@@ -120,6 +117,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutItemsImport
       parentRoute: typeof LayoutImport
     }
+    '/_layout/scoreboard': {
+      preLoaderRoute: typeof LayoutScoreboardImport
+      parentRoute: typeof LayoutImport
+    }
     '/_layout/settings': {
       preLoaderRoute: typeof LayoutSettingsImport
       parentRoute: typeof LayoutImport
@@ -137,10 +138,10 @@ export const routeTree = rootRoute.addChildren([
   LayoutRoute.addChildren([
     LayoutAdminRoute,
     LayoutItemsRoute,
+    LayoutScoreboardRoute,
     LayoutSettingsRoute,
     LayoutIndexRoute,
   ]),
-  CabinetRoute,
   LoginRoute,
   MypageRoute,
   RecoverPasswordRoute,

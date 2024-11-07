@@ -53,6 +53,7 @@ export type UpdatePassword = {
 }
 
 export type UserCreate = {
+  role: 'applicant' | 'interviewer' | 'HR'
   email: string
   is_active?: boolean
   is_superuser?: boolean
@@ -61,6 +62,7 @@ export type UserCreate = {
 }
 
 export type UserPublic = {
+  role: 'applicant' | 'interviewer' | 'HR'
   email: string
   is_active?: boolean
   is_superuser?: boolean
@@ -69,12 +71,14 @@ export type UserPublic = {
 }
 
 export type UserRegister = {
+  role: 'applicant' | 'interviewer' | 'HR'
   email: string
   password: string
   full_name?: string | null
 }
 
 export type UserUpdate = {
+  role: 'applicant' | 'interviewer' | 'HR'
   email?: string | null
   is_active?: boolean
   is_superuser?: boolean

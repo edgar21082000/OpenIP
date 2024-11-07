@@ -1,6 +1,4 @@
 import {
-  Container,
-  Heading,
   Table,
   TableContainer,
   Tbody,
@@ -10,18 +8,14 @@ import {
   Tr,
   Select,
   VStack,
-  Flex,
-  Badge
+  Badge,
+  Container,
+  Heading
 } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { z } from "zod";
-import Navbar from "../../components/Common/Navbar.tsx";
-import AddItem from "../../components/Items/AddItem.tsx";
 import { PaginationFooter } from "../../components/Common/PaginationFooter.tsx";
-import SelectItem from "../../components/Items/SelectItem.tsx";
-import { UserPublic } from "../../client/models.ts";
-import { useQueryClient } from "@tanstack/react-query"
 
 // Определяем интерфейс для элемента интервью
 interface InterviewItem {
@@ -114,14 +108,14 @@ const itemsSearchSchema = z.object({
   page: z.number().catch(1),
 });
 
-export const Route = createFileRoute("/_layout/items")({
-  component: Items,
+export const Route = createFileRoute("/_layout/scoreboard")({
+  component: ScoreBoard,
   validateSearch: (search) => itemsSearchSchema.parse(search),
 });
 
 const PER_PAGE = 5;
 
-function ItemsTable() {
+function ScoreBoard() {
   const { page } = Route.useSearch();
   const router = useRouter(); 
 
@@ -150,7 +144,10 @@ function ItemsTable() {
   }, [filters, page]);
 
   return (
-    <>
+    <Container maxW="full">
+      <Heading size="lg" textAlign={{ base: "center", md: "left" }} py={12}>
+        Score board
+      </Heading>
       <VStack align="start" spacing={4} mb={4}>
         <Select
           name="rating"
@@ -219,25 +216,6 @@ function ItemsTable() {
         hasNextPage={filteredItems.length === PER_PAGE}
         hasPreviousPage={page > 1}
       />
-    </>
-  );
-}
-
-function Items() {
-  const queryClient = useQueryClient()
-  const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
-
-  return (
-    <Container maxW="full">
-      <Heading size="lg" textAlign={{ base: "center", md: "left" }} pt={12}>
-        Interviews
-      </Heading>
-
-      <Flex py={8} gap={4}>
-        {currentUser?.role == 'interviewer' && <Navbar text={"Schedule interview"} addModalAs={AddItem} />}
-        {currentUser?.role == 'applicant' && <Navbar text={"Choose interview slot"} addModalAs={SelectItem} />}
-      </Flex>
-      <ItemsTable />
     </Container>
   );
 }
