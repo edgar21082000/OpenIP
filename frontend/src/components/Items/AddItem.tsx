@@ -4,6 +4,7 @@ import {
   FormErrorMessage,
   FormLabel,
   Input,
+  Select,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -11,55 +12,64 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-} from "@chakra-ui/react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { type SubmitHandler, useForm } from "react-hook-form"
+} from "@chakra-ui/react";
+//import { useMutation } from "@tanstack/react-query";
+//import { useQueryClient } from "@tanstack/react-query";
+import { type SubmitHandler, useForm } from "react-hook-form";
 
-import { type ApiError, type ItemCreate, ItemsService } from "../../client"
-import useCustomToast from "../../hooks/useCustomToast"
-import { handleError } from "../../utils"
+//import { type ApiError } from "../../client";
+//import useCustomToast from "../../hooks/useCustomToast";
+//import { handleError } from "../../utils";
 
-interface AddItemProps {
-  isOpen: boolean
-  onClose: () => void
+export interface InterviewCreate {
+  date: string;
+  time: string;
+  duration: number;
+  technology: string;
 }
 
-const AddItem = ({ isOpen, onClose }: AddItemProps) => {
-  const queryClient = useQueryClient()
-  const showToast = useCustomToast()
+interface AddInterviewProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+function AddItem ({ isOpen, onClose }: AddInterviewProps) {
+  //const queryClient = useQueryClient();
+  //const showToast = useCustomToast();
   const {
     register,
     handleSubmit,
-    reset,
+    //reset,
     formState: { errors, isSubmitting },
-  } = useForm<ItemCreate>({
+  } = useForm<InterviewCreate>({
     mode: "onBlur",
     criteriaMode: "all",
     defaultValues: {
-      title: "",
-      description: "",
+      date: "",
+      duration: 0,
+      technology: "",
     },
-  })
+  });
 
-  const mutation = useMutation({
-    mutationFn: (data: ItemCreate) =>
-      ItemsService.createItem({ requestBody: data }),
+  /* const mutation = useMutation({
+    mutationFn: (data: InterviewCreate) => {},
+      InterviewService.createInterview({ requestBody: data }),
     onSuccess: () => {
-      showToast("Success!", "Item created successfully.", "success")
-      reset()
-      onClose()
+      showToast("Success!", "Interview scheduled successfully.", "success");
+      reset();
+      onClose();
     },
     onError: (err: ApiError) => {
-      handleError(err, showToast)
+      handleError(err, showToast);
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] })
+      queryClient.invalidateQueries({ queryKey: ["interviews"] });
     },
-  })
+  }); */
 
-  const onSubmit: SubmitHandler<ItemCreate> = (data) => {
-    mutation.mutate(data)
-  }
+  const onSubmit: SubmitHandler<InterviewCreate> = () => {
+    //mutation.mutate(data);
+  };
 
   return (
     <>
@@ -71,31 +81,54 @@ const AddItem = ({ isOpen, onClose }: AddItemProps) => {
       >
         <ModalOverlay />
         <ModalContent as="form" onSubmit={handleSubmit(onSubmit)}>
-          <ModalHeader>Add Item</ModalHeader>
+          <ModalHeader>Schedule Interview</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
-            <FormControl isRequired isInvalid={!!errors.title}>
-              <FormLabel htmlFor="title">Title</FormLabel>
+            <FormControl isRequired isInvalid={!!errors.date}>
+              <FormLabel htmlFor="date">Date and Time</FormLabel>
               <Input
-                id="title"
-                {...register("title", {
-                  required: "Title is required.",
+                id="date"
+                type="datetime-local"
+                {...register("date", {
+                  required: "Date and time are required.",
                 })}
-                placeholder="Title"
-                type="text"
               />
-              {errors.title && (
-                <FormErrorMessage>{errors.title.message}</FormErrorMessage>
+              {errors.date && (
+                <FormErrorMessage>{errors.date.message}</FormErrorMessage>
               )}
             </FormControl>
-            <FormControl mt={4}>
-              <FormLabel htmlFor="description">Description</FormLabel>
+            <FormControl isRequired mt={4} isInvalid={!!errors.duration}>
+              <FormLabel htmlFor="duration">Duration (in minutes)</FormLabel>
               <Input
-                id="description"
-                {...register("description")}
-                placeholder="Description"
-                type="text"
+                id="duration"
+                type="number"
+                {...register("duration", {
+                  required: "Duration is required.",
+                  min: { value: 1, message: "Duration must be at least 1 minute." }
+                })}
               />
+              {errors.duration && (
+                <FormErrorMessage>{errors.duration.message}</FormErrorMessage>
+              )}
+            </FormControl>
+            <FormControl isRequired mt={4} isInvalid={!!errors.technology}>
+              <FormLabel htmlFor="technology">Technology</FormLabel>
+              <Select
+                id="technology"
+                placeholder="Select technology"
+                {...register("technology", {
+                  required: "Technology is required.",
+                })}
+              >
+                <option value="React">React</option>
+                <option value="Node.js">Node.js</option>
+                <option value="Python">Python</option>
+                <option value="Java">Java</option>
+                <option value="Ruby on Rails">Ruby on Rails</option>
+              </Select>
+              {errors.technology && (
+                <FormErrorMessage>{errors.technology.message}</FormErrorMessage>
+              )}
             </FormControl>
           </ModalBody>
 
@@ -108,7 +141,7 @@ const AddItem = ({ isOpen, onClose }: AddItemProps) => {
         </ModalContent>
       </Modal>
     </>
-  )
-}
+  );
+};
 
-export default AddItem
+export default AddItem;

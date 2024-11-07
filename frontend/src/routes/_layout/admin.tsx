@@ -154,7 +154,7 @@ function Admin() {
         Users Management
       </Heading>
 
-      <Navbar type={"User"} addModalAs={AddUser} />
+      <Navbar text={"Add User"} addModalAs={AddUser} />
       <UsersTable />
     </Container>
   )
