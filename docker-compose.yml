@@ -78,9 +78,10 @@ services:
       - ./backend/app:/app/app
 
   prestart:
-    image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
+    # image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
     build:
       context: ./backend
+      dockerfile: Dockerfile
     networks:
       - traefik-public
       - default
@@ -153,6 +154,7 @@ services:
 
     build:
       context: ./backend
+      dockerfile: Dockerfile
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik-public
