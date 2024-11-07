@@ -97,3 +97,24 @@ export type ValidationError = {
   msg: string
   type: string
 }
+
+// export type CabinetPageProps = {
+//   role: "interviewer" | "candidate" | "hr";
+//   userData?: {
+//     name: string;
+//     photo: string;
+//     email: string;
+//     phone: string;
+//     rating?: number;
+//     availableSlots?: string[];
+//     interviewHistory: InterviewHistory[];
+//   };
+//   onSlotUpdate: () => void;
+//   onSignUp: () => void;
+// };
+
+// export type InterviewHistory = {
+//   date: string;
+//   summary: string;
+//   rating: number;
+// };

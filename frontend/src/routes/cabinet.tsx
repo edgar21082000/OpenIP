@@ -1,5 +1,6 @@
 import { Container, Text, Box, Button, VStack, HStack, Avatar } from "@chakra-ui/react";
 import { createFileRoute } from '@tanstack/react-router';
+import { LoginService } from "../client";
 
 type InterviewHistory = {
   date: string;
@@ -103,17 +104,20 @@ type CabinetPageProps = {
 };
 
 export const CabinetPage: React.FC<CabinetPageProps> = ({
-  role,
+  role = "candidate",
   userData = {
     name: "Владислав",
     photo: "photo",
     email: "vladislav@gmail.com",
     phone: "8-921-740-15-19",
     rating: 999,
-    availableSlots: [],
+    availableSlots: [
+      "first",
+      "second"
+    ],
     interviewHistory: [
         {
-         date: "data",
+         date: "07.11.2024",
          summary: "summary",
          rating: 10   
         }
@@ -123,6 +127,12 @@ export const CabinetPage: React.FC<CabinetPageProps> = ({
   onSignUp
 }) => {
 
+  const recoverPassword = async () => {
+    await LoginService.recoverPassword({
+      email: "",
+    })
+  }
+  recoverPassword();
   return (
     <Container maxW="container.sm" centerContent>
       <UserProfile

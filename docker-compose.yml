@@ -115,6 +115,8 @@ services:
   backend:
     image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
     restart: always
+    ports:
+      - "0.0.0.0:8000:8000"
     networks:
       - traefik-public
       - default
@@ -174,6 +176,8 @@ services:
   frontend:
     image: '${DOCKER_IMAGE_FRONTEND?Variable not set}:${TAG-latest}'
     restart: always
+    ports:
+      - "0.0.0.0:80:80"
     networks:
       - traefik-public
       - default

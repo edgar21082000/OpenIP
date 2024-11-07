@@ -12,14 +12,15 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as SignupImport } from './routes/signup'
+import { Route as ScoreboardImport } from './routes/scoreboard'
 import { Route as ResetPasswordImport } from './routes/reset-password'
 import { Route as RecoverPasswordImport } from './routes/recover-password'
-import { Route as MypageImport } from './routes/mypage'
 import { Route as LoginImport } from './routes/login'
 import { Route as CabinetImport } from './routes/cabinet'
 import { Route as LayoutImport } from './routes/_layout'
 import { Route as LayoutIndexImport } from './routes/_layout/index'
 import { Route as LayoutSettingsImport } from './routes/_layout/settings'
+import { Route as LayoutScoreboardImport } from './routes/_layout/scoreboard'
 import { Route as LayoutItemsImport } from './routes/_layout/items'
 import { Route as LayoutAdminImport } from './routes/_layout/admin'
 
@@ -30,6 +31,11 @@ const SignupRoute = SignupImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const ScoreboardRoute = ScoreboardImport.update({
+  path: '/scoreboard',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const ResetPasswordRoute = ResetPasswordImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRoute,
@@ -37,11 +43,6 @@ const ResetPasswordRoute = ResetPasswordImport.update({
 
 const RecoverPasswordRoute = RecoverPasswordImport.update({
   path: '/recover-password',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const MypageRoute = MypageImport.update({
-  path: '/mypage',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -67,6 +68,11 @@ const LayoutIndexRoute = LayoutIndexImport.update({
 
 const LayoutSettingsRoute = LayoutSettingsImport.update({
   path: '/settings',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutScoreboardRoute = LayoutScoreboardImport.update({
+  path: '/scoreboard',
   getParentRoute: () => LayoutRoute,
 } as any)
 
@@ -96,16 +102,16 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
     }
-    '/mypage': {
-      preLoaderRoute: typeof MypageImport
-      parentRoute: typeof rootRoute
-    }
     '/recover-password': {
       preLoaderRoute: typeof RecoverPasswordImport
       parentRoute: typeof rootRoute
     }
     '/reset-password': {
       preLoaderRoute: typeof ResetPasswordImport
+      parentRoute: typeof rootRoute
+    }
+    '/scoreboard': {
+      preLoaderRoute: typeof ScoreboardImport
       parentRoute: typeof rootRoute
     }
     '/signup': {
@@ -118,6 +124,10 @@ declare module '@tanstack/react-router' {
     }
     '/_layout/items': {
       preLoaderRoute: typeof LayoutItemsImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/scoreboard': {
+      preLoaderRoute: typeof LayoutScoreboardImport
       parentRoute: typeof LayoutImport
     }
     '/_layout/settings': {
@@ -137,14 +147,15 @@ export const routeTree = rootRoute.addChildren([
   LayoutRoute.addChildren([
     LayoutAdminRoute,
     LayoutItemsRoute,
+    LayoutScoreboardRoute,
     LayoutSettingsRoute,
     LayoutIndexRoute,
   ]),
   CabinetRoute,
   LoginRoute,
-  MypageRoute,
   RecoverPasswordRoute,
   ResetPasswordRoute,
+  ScoreboardRoute,
   SignupRoute,
 ])
 
