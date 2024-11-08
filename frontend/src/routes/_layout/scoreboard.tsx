@@ -34,7 +34,7 @@ function ScoreBoard() {
   const [data, setData] = useState<ScoreBoardRecord[]>([]);
 
   const fetchData = async () => {
-    const response = await ScoreBoardService.getScoreBoard({});
+    const response = await ScoreBoardService.getScoreBoard();
     setData(response);
   };
     

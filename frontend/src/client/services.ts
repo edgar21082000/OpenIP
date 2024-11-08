@@ -15,6 +15,12 @@ import type {
   UserUpdate,
   UserUpdateMe,
   ScoreBoardRecord,
+  InterviewSlotPublic,
+  InterviewSlotCreate,
+  InterviewSlotSelectResult,
+  InterviewHistory,
+  SetMarkResult,
+  SetMarkData,
 } from "./models"
 
 export type TDataLoginAccessToken = {
@@ -397,17 +403,13 @@ export class UtilsService {
   }
 }
 
-export type TScoreBoardFilters = {
-}
-
 export class ScoreBoardService {
   /**
    * Get Score board
    * @returns ScoreBoardRecord[] Successful Response
    * @throws ApiError
    */
-  public static getScoreBoard(data: TScoreBoardFilters): CancelablePromise<ScoreBoardRecord[]> {
-    const { } = data
+  public static getScoreBoard(): CancelablePromise<ScoreBoardRecord[]> {
     return __request(OpenAPI, {
       method: "GET",
       url: "/api/v1/scoreboard",
@@ -418,3 +420,83 @@ export class ScoreBoardService {
   }
 }
 
+export class InterviewSlotsService {
+  /**
+   * Get Interview slots
+   * @returns InterviewSlot[] Successful Response
+   * @throws ApiError
+   */
+  public static getInterviewSlots(): CancelablePromise<InterviewSlotPublic[]> {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/v1/interviewer/free-slots",
+      errors: {
+        422: `Validation Error`,
+      },
+    })
+  }
+
+  /**
+   * Select Interview slot
+   * @returns Successful Response
+   * @throws ApiError
+   */
+    public static selectInterviewSlot(id: number): CancelablePromise<InterviewSlotSelectResult> {
+      return __request(OpenAPI, {
+        method: "POST",
+        url: `/api/v1/interviewer/create_interview/${id}`,
+        errors: {
+          422: `Validation Error`,
+        },
+      })
+    }
+
+  /**
+   * Create Interview slot
+   * @returns Successful Response
+   * @throws ApiError
+   */
+    public static createInterviewSlot(data: InterviewSlotCreate): CancelablePromise<Message> {
+      return __request(OpenAPI, {
+        method: "POST",
+        url: `/api/v1/interviewer/free-slots`,
+        body: data,
+        errors: {
+          422: `Validation Error`,
+        },
+      })
+    }
+}
+
+export class InterviewsService {
+    /**
+   * Get Interviews history
+   * @returns InterviewHistory[] Successful Response
+   * @throws ApiError
+   */
+    public static getInterviewHistory(): CancelablePromise<InterviewHistory[]> {
+      return __request(OpenAPI, {
+        method: "GET",
+        url: `/api/v1/interviewer/history`,
+        errors: {
+          422: `Validation Error`,
+        },
+      })
+    }
+
+    /**
+   * Set Mark
+   * @returns SetMarkResult Successful Response
+   * @throws ApiError
+   */
+     public static setMark(data: SetMarkData): CancelablePromise<SetMarkResult> {
+      return __request(OpenAPI, {
+        method: "POST",
+        url: `/api/v1/interviewer/set_mark`,
+        body: data,
+        errors: {
+          422: `Validation Error`,
+        },
+      })
+    }
+}
