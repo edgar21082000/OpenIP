@@ -11,26 +11,15 @@ export type HTTPValidationError = {
   detail?: Array<ValidationError>
 }
 
-export type ItemCreate = {
-  title: string
-  description?: string | null
+export type ValidationError = {
+  loc: Array<string | number>
+  msg: string
+  type: string
 }
 
-export type ItemPublic = {
-  title: string
-  description?: string | null
-  id: string
-  owner_id: string
-}
-
-export type ItemUpdate = {
-  title?: string | null
-  description?: string | null
-}
-
-export type ItemsPublic = {
-  data: Array<ItemPublic>
-  count: number
+export type Token = {
+  access_token: string
+  token_type?: string
 }
 
 export type Message = {
@@ -42,25 +31,13 @@ export type NewPassword = {
   new_password: string
 }
 
-export type Token = {
-  access_token: string
-  token_type?: string
-}
-
 export type UpdatePassword = {
   current_password: string
   new_password: string
 }
 
-export type UserCreate = {
-  email: string
-  is_active?: boolean
-  is_superuser?: boolean
-  full_name?: string | null
-  password: string
-}
-
 export type UserPublic = {
+  role: 'applicant' | 'interviewer' | 'HR'
   email: string
   is_active?: boolean
   is_superuser?: boolean
@@ -68,13 +45,29 @@ export type UserPublic = {
   id: string
 }
 
+export type UsersPublic = {
+  data: Array<UserPublic>
+  count: number
+}
+
+export type UserCreate = {
+  role: 'applicant' | 'interviewer' | 'HR'
+  email: string
+  is_active?: boolean
+  is_superuser?: boolean
+  full_name?: string | null
+  password: string
+}
+
 export type UserRegister = {
+  role: 'applicant' | 'interviewer' | 'HR'
   email: string
   password: string
   full_name?: string | null
 }
 
 export type UserUpdate = {
+  role: 'applicant' | 'interviewer' | 'HR'
   email?: string | null
   is_active?: boolean
   is_superuser?: boolean
@@ -87,13 +80,43 @@ export type UserUpdateMe = {
   email?: string | null
 }
 
-export type UsersPublic = {
-  data: Array<UserPublic>
-  count: number
+export type ScoreBoardRecord = {
+  mail: string
+  status: boolean
+  stack: string
+  mark: number
 }
 
-export type ValidationError = {
-  loc: Array<string | number>
-  msg: string
-  type: string
+export type InterviewSlotPublic = {
+  id: number
+  email: string
+  from_datetime: string
+  duration: number
+  stack: string
+}
+
+export interface InterviewSlotSelectResult {
+  status: string
+}
+
+export interface InterviewSlotCreate {
+  from_datetime: string
+  duration: number
+  stack: string
+}
+
+export interface InterviewHistory {
+  interview_id: number
+  date: string
+  summary: string
+  rating: number
+}
+
+export interface SetMarkResult {
+  status: string
+}
+
+export interface SetMarkData {
+  interview_id: string
+  mark: string
 }

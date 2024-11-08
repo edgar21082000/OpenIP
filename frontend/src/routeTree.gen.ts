@@ -14,11 +14,14 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as SignupImport } from './routes/signup'
 import { Route as ResetPasswordImport } from './routes/reset-password'
 import { Route as RecoverPasswordImport } from './routes/recover-password'
+import { Route as MypageImport } from './routes/mypage'
 import { Route as LoginImport } from './routes/login'
+import { Route as CabinetImport } from './routes/cabinet'
 import { Route as LayoutImport } from './routes/_layout'
 import { Route as LayoutIndexImport } from './routes/_layout/index'
 import { Route as LayoutSettingsImport } from './routes/_layout/settings'
-import { Route as LayoutItemsImport } from './routes/_layout/items'
+import { Route as LayoutItemsImport} from './routes/_layout/items'
+import { Route as LayoutScoreboardImport } from './routes/_layout/scoreboard'
 import { Route as LayoutAdminImport } from './routes/_layout/admin'
 
 // Create/Update Routes
@@ -35,6 +38,11 @@ const ResetPasswordRoute = ResetPasswordImport.update({
 
 const RecoverPasswordRoute = RecoverPasswordImport.update({
   path: '/recover-password',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const MypageRoute = MypageImport.update({
+  path: '/mypage',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -63,6 +71,11 @@ const LayoutItemsRoute = LayoutItemsImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
+const LayoutScoreboardRoute = LayoutScoreboardImport.update({
+  path: '/scoreboard',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const LayoutAdminRoute = LayoutAdminImport.update({
   path: '/admin',
   getParentRoute: () => LayoutRoute,
@@ -78,6 +91,10 @@ declare module '@tanstack/react-router' {
     }
     '/login': {
       preLoaderRoute: typeof LoginImport
+      parentRoute: typeof rootRoute
+    }
+    '/mypage': {
+      preLoaderRoute: typeof MypageImport
       parentRoute: typeof rootRoute
     }
     '/recover-password': {
@@ -100,6 +117,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutItemsImport
       parentRoute: typeof LayoutImport
     }
+    '/_layout/scoreboard': {
+      preLoaderRoute: typeof LayoutScoreboardImport
+      parentRoute: typeof LayoutImport
+    }
     '/_layout/settings': {
       preLoaderRoute: typeof LayoutSettingsImport
       parentRoute: typeof LayoutImport
@@ -117,10 +138,12 @@ export const routeTree = rootRoute.addChildren([
   LayoutRoute.addChildren([
     LayoutAdminRoute,
     LayoutItemsRoute,
+    LayoutScoreboardRoute,
     LayoutSettingsRoute,
     LayoutIndexRoute,
   ]),
   LoginRoute,
+  MypageRoute,
   RecoverPasswordRoute,
   ResetPasswordRoute,
   SignupRoute,

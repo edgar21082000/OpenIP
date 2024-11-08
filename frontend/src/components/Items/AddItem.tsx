@@ -4,6 +4,7 @@ import {
   FormErrorMessage,
   FormLabel,
   Input,
+  Select,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -11,53 +12,47 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-} from "@chakra-ui/react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { type SubmitHandler, useForm } from "react-hook-form"
+} from "@chakra-ui/react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { ApiError, InterviewSlotCreate, InterviewSlotsService } from "../../client";
+import useCustomToast from "../../hooks/useCustomToast";
+import { useMutation } from "@tanstack/react-query";
+import { handleError } from "../../utils";
 
-import { type ApiError, type ItemCreate, ItemsService } from "../../client"
-import useCustomToast from "../../hooks/useCustomToast"
-import { handleError } from "../../utils"
-
-interface AddItemProps {
-  isOpen: boolean
-  onClose: () => void
+interface AddInterviewProps {
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-const AddItem = ({ isOpen, onClose }: AddItemProps) => {
-  const queryClient = useQueryClient()
+function AddItem ({ isOpen, onClose }: AddInterviewProps) {
   const showToast = useCustomToast()
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors, isSubmitting },
-  } = useForm<ItemCreate>({
+  } = useForm<InterviewSlotCreate>({
     mode: "onBlur",
     criteriaMode: "all",
     defaultValues: {
-      title: "",
-      description: "",
+      from_datetime: "",
+      duration: 0,
+      stack: ""
     },
-  })
+  });
 
   const mutation = useMutation({
-    mutationFn: (data: ItemCreate) =>
-      ItemsService.createItem({ requestBody: data }),
+    mutationFn: (data: InterviewSlotCreate) =>
+      InterviewSlotsService.createInterviewSlot(data),
     onSuccess: () => {
-      showToast("Success!", "Item created successfully.", "success")
-      reset()
-      onClose()
+      showToast("Success!", "Slot added successfully.", "success")
+      onClose(); 
     },
     onError: (err: ApiError) => {
       handleError(err, showToast)
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] })
-    },
   })
 
-  const onSubmit: SubmitHandler<ItemCreate> = (data) => {
+  const onSubmit: SubmitHandler<InterviewSlotCreate> = async (data) => {
     mutation.mutate(data)
   }
 
@@ -71,31 +66,52 @@ const AddItem = ({ isOpen, onClose }: AddItemProps) => {
       >
         <ModalOverlay />
         <ModalContent as="form" onSubmit={handleSubmit(onSubmit)}>
-          <ModalHeader>Add Item</ModalHeader>
+          <ModalHeader>Schedule Interview</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
-            <FormControl isRequired isInvalid={!!errors.title}>
-              <FormLabel htmlFor="title">Title</FormLabel>
+            <FormControl isRequired isInvalid={!!errors.from_datetime}>
+              <FormLabel htmlFor="date">Interview Date</FormLabel>
               <Input
-                id="title"
-                {...register("title", {
-                  required: "Title is required.",
+                id="from_date_time"
+                type="datetime-local"
+                {...register("from_datetime", {
+                  required: "Date and time are required.",
                 })}
-                placeholder="Title"
-                type="text"
               />
-              {errors.title && (
-                <FormErrorMessage>{errors.title.message}</FormErrorMessage>
+              {errors.from_datetime && (
+                <FormErrorMessage>{errors.from_datetime.message}</FormErrorMessage>
               )}
             </FormControl>
-            <FormControl mt={4}>
-              <FormLabel htmlFor="description">Description</FormLabel>
+            <FormControl isRequired mt={4} isInvalid={!!errors.duration}>
+              <FormLabel htmlFor="duration">Duration (Hours)</FormLabel>
               <Input
-                id="description"
-                {...register("description")}
-                placeholder="Description"
-                type="text"
+                id="duration"
+                type="number"
+                {...register("duration", {
+                  required: "Duration is required.",
+                  min: { value: 1, message: "Duration must be at least 1 minute." }
+                })}
               />
+              {errors.duration && (
+                <FormErrorMessage>{errors.duration.message}</FormErrorMessage>
+              )}
+            </FormControl>
+            <FormControl isRequired mt={4} isInvalid={!!errors.stack}>
+              <FormLabel htmlFor="stack">Stack</FormLabel>
+              <Select
+                id="stack"
+                placeholder="Select stack"
+                {...register("stack", {
+                  required: "Stack is required.",
+                })}
+              >
+                <option value="python">python</option>
+                <option value="go">go</option>
+                <option value="algo">algo</option>
+              </Select>
+              {errors.stack && (
+                <FormErrorMessage>{errors.stack.message}</FormErrorMessage>
+              )}
             </FormControl>
           </ModalBody>
 
@@ -108,7 +124,7 @@ const AddItem = ({ isOpen, onClose }: AddItemProps) => {
         </ModalContent>
       </Modal>
     </>
-  )
-}
+  );
+};
 
-export default AddItem
+export default AddItem;

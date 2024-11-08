@@ -1,7 +1,19 @@
-import { Box, Container, Text } from "@chakra-ui/react"
 import { createFileRoute } from "@tanstack/react-router"
-
+import {
+  Container,
+  Badge,
+  Text,
+  VStack,
+  StackDivider,
+  HStack,
+  Heading,
+  Divider,
+  Image
+} from '@chakra-ui/react';
 import useAuth from "../../hooks/useAuth"
+import ApplicantIcon from '../../../public/assets/images/cat.jpg'
+import InterviewerIcon from '../../../public/assets/images/catinterviewer.jpg'
+import HRIcon from '../../../public/assets/images/cathr.jpg'
 
 export const Route = createFileRoute("/_layout/")({
   component: Dashboard,
@@ -10,16 +22,104 @@ export const Route = createFileRoute("/_layout/")({
 function Dashboard() {
   const { user: currentUser } = useAuth()
 
+  const userData = {
+    technologies: [
+      { name: 'algo', count: 5 },
+      { name: 'c++', count: 3 },
+      { name: 'go', count: 4 },
+      { name: 'python', count: 2 },
+    ],
+    lastInterview: '2024-11-06',
+    nextInterviews: [
+      { date: '2024-11-08', tech: 'algo' },
+      { date: '2024-11-10', tech: 'python' },
+    ],
+  };
+
   return (
-    <>
-      <Container maxW="full">
-        <Box pt={12} m={4}>
-          <Text fontSize="2xl">
-            Hi, {currentUser?.full_name || currentUser?.email} 👋🏼
+    <Container maxW="full">
+       <Heading size="lg" textAlign={{ base: "center", md: "left" }} py={12}>
+        Profile
+      </Heading>
+
+      <HStack spacing={5} align="center">
+        {currentUser?.role == 'applicant' &&
+          <Image 
+          borderRadius="full"
+          boxSize="100px"
+          src={ApplicantIcon}
+          alt="Profile Photo" 
+          />}
+        {currentUser?.role == 'interviewer' &&
+          <Image 
+          borderRadius="full"
+          boxSize="100px"
+          src={InterviewerIcon}
+          alt="Profile Photo" 
+          />}
+        {currentUser?.role == 'HR' &&
+          <Image 
+          borderRadius="full"
+          boxSize="100px"
+          src={HRIcon}
+          alt="Profile Photo" 
+          />}
+        <VStack align="start">
+          <Text fontSize="lg">{currentUser?.full_name}</Text>
+          <Text fontSize="lg">{currentUser?.email}</Text>
+        </VStack>
+      </HStack>
+      
+      <Divider my={4} />
+
+      <Text fontSize="lg" fontWeight="bold">{currentUser?.role}</Text>
+
+      <Divider my={4} />
+
+      {(currentUser?.role == 'applicant' || currentUser?.role == 'interviewer') &&
+        <>
+          <Text fontSize="lg" fontWeight="bold">
+            Preferred Stack:
           </Text>
-          <Text>Welcome back, nice to see you again!</Text>
-        </Box>
-      </Container>
-    </>
+          <VStack align="start" divider={<StackDivider borderColor="gray.200" />}>
+            {userData.technologies
+              .sort((a, b) => b.count - a.count)
+              .map((tech) => (
+                <HStack key={tech.name}>
+                  <Badge colorScheme="blue">{tech.name}</Badge>
+                  <Text>{tech.count}</Text>
+                </HStack>
+              ))}
+          </VStack>
+
+          <Divider my={4} />
+
+          <VStack align="start" spacing={4} mt={5}>
+            <Text fontSize="lg" fontWeight="bold">
+            Last interview:
+            </Text>
+            <Text fontSize="md">
+              {userData.lastInterview}
+            </Text>
+          </VStack>
+
+          <Divider my={4} />
+
+          <VStack align="start" spacing={4} mt={5}>
+            <Text fontSize="lg" fontWeight="bold">
+              Pending interviews:
+            </Text>
+            {userData.nextInterviews.map((interview, index) => (
+              <HStack key={index} spacing={3}>
+                <Text fontSize="md">{interview.date}</Text>
+                <Badge colorScheme="blue">{interview.tech}</Badge>
+              </HStack>
+            ))}
+          </VStack>
+        </>
+      }
+
+    </Container>
   )
 }
+

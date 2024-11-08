@@ -14,10 +14,13 @@ import type {
   UsersPublic,
   UserUpdate,
   UserUpdateMe,
-  ItemCreate,
-  ItemPublic,
-  ItemsPublic,
-  ItemUpdate,
+  ScoreBoardRecord,
+  InterviewSlotPublic,
+  InterviewSlotCreate,
+  InterviewSlotSelectResult,
+  InterviewHistory,
+  SetMarkResult,
+  SetMarkData,
 } from "./models"
 
 export type TDataLoginAccessToken = {
@@ -400,83 +403,33 @@ export class UtilsService {
   }
 }
 
-export type TDataReadItems = {
-  limit?: number
-  skip?: number
-}
-export type TDataCreateItem = {
-  requestBody: ItemCreate
-}
-export type TDataReadItem = {
-  id: string
-}
-export type TDataUpdateItem = {
-  id: string
-  requestBody: ItemUpdate
-}
-export type TDataDeleteItem = {
-  id: string
-}
-
-export class ItemsService {
+export class ScoreBoardService {
   /**
-   * Read Items
-   * Retrieve items.
-   * @returns ItemsPublic Successful Response
+   * Get Score board
+   * @returns ScoreBoardRecord[] Successful Response
    * @throws ApiError
    */
-  public static readItems(
-    data: TDataReadItems = {},
-  ): CancelablePromise<ItemsPublic> {
-    const { limit = 100, skip = 0 } = data
+  public static getScoreBoard(): CancelablePromise<ScoreBoardRecord[]> {
     return __request(OpenAPI, {
       method: "GET",
-      url: "/api/v1/items/",
-      query: {
-        skip,
-        limit,
-      },
+      url: "/api/v1/scoreboard",
       errors: {
         422: `Validation Error`,
       },
     })
   }
+}
 
+export class InterviewSlotsService {
   /**
-   * Create Item
-   * Create new item.
-   * @returns ItemPublic Successful Response
+   * Get Interview slots
+   * @returns InterviewSlot[] Successful Response
    * @throws ApiError
    */
-  public static createItem(
-    data: TDataCreateItem,
-  ): CancelablePromise<ItemPublic> {
-    const { requestBody } = data
-    return __request(OpenAPI, {
-      method: "POST",
-      url: "/api/v1/items/",
-      body: requestBody,
-      mediaType: "application/json",
-      errors: {
-        422: `Validation Error`,
-      },
-    })
-  }
-
-  /**
-   * Read Item
-   * Get item by ID.
-   * @returns ItemPublic Successful Response
-   * @throws ApiError
-   */
-  public static readItem(data: TDataReadItem): CancelablePromise<ItemPublic> {
-    const { id } = data
+  public static getInterviewSlots(): CancelablePromise<InterviewSlotPublic[]> {
     return __request(OpenAPI, {
       method: "GET",
-      url: "/api/v1/items/{id}",
-      path: {
-        id,
-      },
+      url: "/api/v1/interviewer/free-slots",
       errors: {
         422: `Validation Error`,
       },
@@ -484,46 +437,66 @@ export class ItemsService {
   }
 
   /**
-   * Update Item
-   * Update an item.
-   * @returns ItemPublic Successful Response
+   * Select Interview slot
+   * @returns Successful Response
    * @throws ApiError
    */
-  public static updateItem(
-    data: TDataUpdateItem,
-  ): CancelablePromise<ItemPublic> {
-    const { id, requestBody } = data
-    return __request(OpenAPI, {
-      method: "PUT",
-      url: "/api/v1/items/{id}",
-      path: {
-        id,
-      },
-      body: requestBody,
-      mediaType: "application/json",
-      errors: {
-        422: `Validation Error`,
-      },
-    })
-  }
+    public static selectInterviewSlot(id: number): CancelablePromise<InterviewSlotSelectResult> {
+      return __request(OpenAPI, {
+        method: "POST",
+        url: `/api/v1/interviewer/create_interview/${id}`,
+        errors: {
+          422: `Validation Error`,
+        },
+      })
+    }
 
   /**
-   * Delete Item
-   * Delete an item.
-   * @returns Message Successful Response
+   * Create Interview slot
+   * @returns Successful Response
    * @throws ApiError
    */
-  public static deleteItem(data: TDataDeleteItem): CancelablePromise<Message> {
-    const { id } = data
-    return __request(OpenAPI, {
-      method: "DELETE",
-      url: "/api/v1/items/{id}",
-      path: {
-        id,
-      },
-      errors: {
-        422: `Validation Error`,
-      },
-    })
-  }
+    public static createInterviewSlot(data: InterviewSlotCreate): CancelablePromise<Message> {
+      return __request(OpenAPI, {
+        method: "POST",
+        url: `/api/v1/interviewer/free-slots`,
+        body: data,
+        errors: {
+          422: `Validation Error`,
+        },
+      })
+    }
+}
+
+export class InterviewsService {
+    /**
+   * Get Interviews history
+   * @returns InterviewHistory[] Successful Response
+   * @throws ApiError
+   */
+    public static getInterviewHistory(): CancelablePromise<InterviewHistory[]> {
+      return __request(OpenAPI, {
+        method: "GET",
+        url: `/api/v1/interviewer/history`,
+        errors: {
+          422: `Validation Error`,
+        },
+      })
+    }
+
+    /**
+   * Set Mark
+   * @returns SetMarkResult Successful Response
+   * @throws ApiError
+   */
+     public static setMark(data: SetMarkData): CancelablePromise<SetMarkResult> {
+      return __request(OpenAPI, {
+        method: "POST",
+        url: `/api/v1/interviewer/set_mark`,
+        body: data,
+        errors: {
+          422: `Validation Error`,
+        },
+      })
+    }
 }

@@ -1,15 +1,48 @@
 import uuid
+from datetime import datetime
+from enum import Enum
 
 from pydantic import EmailStr
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Column, Field, Relationship, SQLModel
+from sqlmodel import Enum as SQLEnum
+
+
+class Role(str, Enum):
+    hr = 'HR'
+    interviewer = 'interviewer'
+    applicant = 'applicant'
+
+
+class InterviewType(str, Enum):
+    algo = 'algorithm'
+    backend = 'backend'
+
+
+class InterviewStatus(str, Enum):
+    waiting = 'waiting'
+    in_progress = 'in_progress'
+    finished = 'finished'
+
+
+class InterviewMark(str, Enum):
+    A = 'A'
+    B = 'B'
+    C = 'C'
+    D = 'D'
+    E = 'E'
 
 
 # Shared properties
 class UserBase(SQLModel):
+    class Config:
+        arbitrary_types_allowed = True
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     email: EmailStr = Field(unique=True, index=True, max_length=255)
+    full_name: str | None = Field(default=None, max_length=255)
+    role: Role = Field(sa_column=Column(SQLEnum(Role), nullable=False))
     is_active: bool = True
     is_superuser: bool = False
-    full_name: str | None = Field(default=None, max_length=255)
 
 
 # Properties to receive via API on creation
@@ -17,10 +50,8 @@ class UserCreate(UserBase):
     password: str = Field(min_length=8, max_length=40)
 
 
-class UserRegister(SQLModel):
-    email: EmailStr = Field(max_length=255)
-    password: str = Field(min_length=8, max_length=40)
-    full_name: str | None = Field(default=None, max_length=255)
+class UserRegister(UserCreate):
+    pass
 
 
 # Properties to receive via API on update, all are optional
@@ -41,55 +72,60 @@ class UpdatePassword(SQLModel):
 
 # Database model, database table inferred from class name
 class User(UserBase, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
-    items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)
+
+
+class StackTag(SQLModel, table=True):
+    tag_code: str = Field(min_length=1, max_length=255, primary_key=True)
+
+
+class InterviewSlotBase(SQLModel):
+    from_datetime: datetime = Field(default_factory=datetime.utcnow)
+    duration: float = Field(default=1, nullable=False)
+
+
+class InterviewSlot(InterviewSlotBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    user_id: uuid.UUID = Field(foreign_key='user.id', nullable=False)
+
+
+class InterviewSlotCreate(InterviewSlotBase):
+    stack: str = Field(max_length=40, default='python')
+
+
+class InterviewSlotSelect(InterviewSlotBase):
+    email: str = Field(max_length=40)
+    stack: str = Field(max_length=40, default='python')
+
+
+class Interview(SQLModel, table=True):
+    class Config:
+        arbitrary_types_allowed = True
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    interviewer_id: uuid.UUID = Field(foreign_key='user.id')
+    applicant_id: uuid.UUID = Field(foreign_key='user.id')
+    link: str = Field(min_length=8, max_length=255)
+    stack_tag: str = Field(foreign_key='stacktag.tag_code')
+    event_datetime: datetime = Field(default_factory=datetime.utcnow)
+    type: InterviewType = Field(sa_column=Column(SQLEnum(InterviewType), nullable=False))
+    status: InterviewStatus =  Field(sa_column=Column(SQLEnum(InterviewStatus), nullable=False))
+    mark: InterviewMark | None = Field(sa_column=Column(SQLEnum(InterviewMark), default=None))
+    comments: str = Field(min_length=40)
+
+
+class MarkCreate(SQLModel):
+    interview_id: uuid.UUID = Field(default_factory=uuid.uuid4)
+    mark: str = Field(max_length=1)
 
 
 # Properties to return via API, id is always required
 class UserPublic(UserBase):
-    id: uuid.UUID
+    pass
 
 
 class UsersPublic(SQLModel):
     data: list[UserPublic]
-    count: int
-
-
-# Shared properties
-class ItemBase(SQLModel):
-    title: str = Field(min_length=1, max_length=255)
-    description: str | None = Field(default=None, max_length=255)
-
-
-# Properties to receive on item creation
-class ItemCreate(ItemBase):
-    pass
-
-
-# Properties to receive on item update
-class ItemUpdate(ItemBase):
-    title: str | None = Field(default=None, min_length=1, max_length=255)  # type: ignore
-
-
-# Database model, database table inferred from class name
-class Item(ItemBase, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    title: str = Field(max_length=255)
-    owner_id: uuid.UUID = Field(
-        foreign_key="user.id", nullable=False, ondelete="CASCADE"
-    )
-    owner: User | None = Relationship(back_populates="items")
-
-
-# Properties to return via API, id is always required
-class ItemPublic(ItemBase):
-    id: uuid.UUID
-    owner_id: uuid.UUID
-
-
-class ItemsPublic(SQLModel):
-    data: list[ItemPublic]
     count: int
 
 
@@ -101,7 +137,7 @@ class Message(SQLModel):
 # JSON payload containing access token
 class Token(SQLModel):
     access_token: str
-    token_type: str = "bearer"
+    token_type: str = 'bearer'
 
 
 # Contents of JWT token
