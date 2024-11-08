@@ -13,20 +13,11 @@ import {
   ModalHeader,
   ModalOverlay,
 } from "@chakra-ui/react";
-//import { useMutation } from "@tanstack/react-query";
-//import { useQueryClient } from "@tanstack/react-query";
-import { type SubmitHandler, useForm } from "react-hook-form";
-
-//import { type ApiError } from "../../client";
-//import useCustomToast from "../../hooks/useCustomToast";
-//import { handleError } from "../../utils";
-
-export interface InterviewCreate {
-  date: string;
-  time: string;
-  duration: number;
-  technology: string;
-}
+import { SubmitHandler, useForm } from "react-hook-form";
+import { ApiError, InterviewSlotCreate, InterviewSlotsService } from "../../client";
+import useCustomToast from "../../hooks/useCustomToast";
+import { useMutation } from "@tanstack/react-query";
+import { handleError } from "../../utils";
 
 interface AddInterviewProps {
   isOpen: boolean;
@@ -34,42 +25,36 @@ interface AddInterviewProps {
 }
 
 function AddItem ({ isOpen, onClose }: AddInterviewProps) {
-  //const queryClient = useQueryClient();
-  //const showToast = useCustomToast();
+  const showToast = useCustomToast()
   const {
     register,
     handleSubmit,
-    //reset,
     formState: { errors, isSubmitting },
-  } = useForm<InterviewCreate>({
+  } = useForm<InterviewSlotCreate>({
     mode: "onBlur",
     criteriaMode: "all",
     defaultValues: {
-      date: "",
+      from_datetime: "",
       duration: 0,
-      technology: "",
+      stack: ""
     },
   });
 
-  /* const mutation = useMutation({
-    mutationFn: (data: InterviewCreate) => {},
-      InterviewService.createInterview({ requestBody: data }),
+  const mutation = useMutation({
+    mutationFn: (data: InterviewSlotCreate) =>
+      InterviewSlotsService.createInterviewSlot(data),
     onSuccess: () => {
-      showToast("Success!", "Interview scheduled successfully.", "success");
-      reset();
-      onClose();
+      showToast("Success!", "Slot added successfully.", "success")
+      onClose(); 
     },
     onError: (err: ApiError) => {
-      handleError(err, showToast);
+      handleError(err, showToast)
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["interviews"] });
-    },
-  }); */
+  })
 
-  const onSubmit: SubmitHandler<InterviewCreate> = () => {
-    //mutation.mutate(data);
-  };
+  const onSubmit: SubmitHandler<InterviewSlotCreate> = async (data) => {
+    mutation.mutate(data)
+  }
 
   return (
     <>
@@ -84,21 +69,21 @@ function AddItem ({ isOpen, onClose }: AddInterviewProps) {
           <ModalHeader>Schedule Interview</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
-            <FormControl isRequired isInvalid={!!errors.date}>
-              <FormLabel htmlFor="date">Date and Time</FormLabel>
+            <FormControl isRequired isInvalid={!!errors.from_datetime}>
+              <FormLabel htmlFor="date">Interview Date</FormLabel>
               <Input
-                id="date"
+                id="from_date_time"
                 type="datetime-local"
-                {...register("date", {
+                {...register("from_datetime", {
                   required: "Date and time are required.",
                 })}
               />
-              {errors.date && (
-                <FormErrorMessage>{errors.date.message}</FormErrorMessage>
+              {errors.from_datetime && (
+                <FormErrorMessage>{errors.from_datetime.message}</FormErrorMessage>
               )}
             </FormControl>
             <FormControl isRequired mt={4} isInvalid={!!errors.duration}>
-              <FormLabel htmlFor="duration">Duration (in minutes)</FormLabel>
+              <FormLabel htmlFor="duration">Duration (Hours)</FormLabel>
               <Input
                 id="duration"
                 type="number"
@@ -111,23 +96,21 @@ function AddItem ({ isOpen, onClose }: AddInterviewProps) {
                 <FormErrorMessage>{errors.duration.message}</FormErrorMessage>
               )}
             </FormControl>
-            <FormControl isRequired mt={4} isInvalid={!!errors.technology}>
-              <FormLabel htmlFor="technology">Technology</FormLabel>
+            <FormControl isRequired mt={4} isInvalid={!!errors.stack}>
+              <FormLabel htmlFor="stack">Stack</FormLabel>
               <Select
-                id="technology"
-                placeholder="Select technology"
-                {...register("technology", {
-                  required: "Technology is required.",
+                id="stack"
+                placeholder="Select stack"
+                {...register("stack", {
+                  required: "Stack is required.",
                 })}
               >
-                <option value="React">React</option>
-                <option value="Node.js">Node.js</option>
-                <option value="Python">Python</option>
-                <option value="Java">Java</option>
-                <option value="Ruby on Rails">Ruby on Rails</option>
+                <option value="python">python</option>
+                <option value="go">go</option>
+                <option value="algo">algo</option>
               </Select>
-              {errors.technology && (
-                <FormErrorMessage>{errors.technology.message}</FormErrorMessage>
+              {errors.stack && (
+                <FormErrorMessage>{errors.stack.message}</FormErrorMessage>
               )}
             </FormControl>
           </ModalBody>
