@@ -79,12 +79,25 @@ class StackTag(SQLModel, table=True):
     tag_code: str = Field(min_length=1, max_length=255, primary_key=True)
 
 
-class InterviewSlot(SQLModel, table=True):
+class InterviewSlotBase(SQLModel):
+    from_datetime: datetime = Field(default_factory=datetime.utcnow)
+    duration: float = Field(default=1, nullable=False)
+
+
+class InterviewSlot(InterviewSlotBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     user_id: uuid.UUID = Field(foreign_key='user.id', nullable=False)
-    max_applicant: int = Field(default=1, nullable=False)
-    from_datetime: datetime = Field(default_factory=datetime.utcnow)
-    to_datetime: datetime = Field(nullable=False)
+
+
+class InterviewSlotCreate(InterviewSlotBase):
+    date: str = Field(max_length=40)
+    time: str = Field(max_length=40)
+    stack: str = Field(max_length=40, default='python')
+
+
+class InterviewSlotSelect(InterviewSlotBase):
+    email: str = Field(max_length=40)
+    stack: str = Field(max_length=40, default='python')
 
 
 class Interview(SQLModel, table=True):
