@@ -269,8 +269,13 @@ def get_history(*, session: SessionDep, current_user: CurrentUser, user_id: str)
             ).order_by(Interview.event_datetime.desc())
     interviews: list[Interview] = session.exec(query).all()
     return [{
-                'event_datetime': payload.event_datetime,
-                'link': payload.link,
-                'stack_tag': payload.stack_tag,
-                'mark': payload.mark
+                'date': str(payload.event_datetime),
+                'summary': 'Soon...',
+                'rating': payload.mark
             } for payload in interviews]
+    # return [{
+    #             'event_datetime': payload.event_datetime,
+    #             'link': payload.link,
+    #             'stack_tag': payload.stack_tag,
+    #             'mark': payload.mark
+    #         } for payload in interviews]

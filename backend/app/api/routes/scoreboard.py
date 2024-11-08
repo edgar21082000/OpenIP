@@ -14,7 +14,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/", dependencies=[Depends(get_current_hr_user)]
+    "/"
 )
 def get_scoreboard(*, session: SessionDep) -> Any:
     """
@@ -38,8 +38,7 @@ def get_scoreboard(*, session: SessionDep) -> Any:
 
     query = query.join(User, User.id == Interview.applicant_id) \
                  .group_by(User.email, User.is_active, Interview.stack_tag)
-    
+
     data = session.exec(query).all()
-    print(data[0])
 
     return [{'mail': item[0], 'status': item[1], 'stack': item[2], 'mark': int(item[3])} for item in data]

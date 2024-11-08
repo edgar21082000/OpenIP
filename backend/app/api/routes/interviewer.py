@@ -9,38 +9,67 @@ from app.api.deps import (
     SessionDep,
     get_current_interviwer_user,
 )
-from app.models import Interview, InterviewSlot, InterviewStatus
+from app.models import (
+    Interview,
+    InterviewSlot,
+    InterviewSlotCreate,
+    InterviewSlotSelect,
+    InterviewStatus,
+    User,
+)
 
 router = APIRouter()
 
 
 @router.get(
-    "/free-slots", dependencies=[Depends(get_current_interviwer_user)], response_model=list[InterviewSlot]
+    "/free-slots"
 )
-def get_free_slots(*, session: SessionDep, current_user: CurrentUser) -> Any:
+def get_free_slots(*, session: SessionDep) -> Any:
     """
     Get all free slot for interviewer.
     """
-    query = select(InterviewSlot).where(
-                    InterviewSlot.user_id == current_user.id,
-                    InterviewSlot.from_datetime >= datetime.utcnow())
-    return session.exec(query).all()
+    query = select(InterviewSlot, User.email)\
+            .join(
+                User,
+                User.id == InterviewSlot.user_id
+            )
+    return [{
+                'id': item[0].id,
+                'from_datetime': str(item[0].from_datetime),
+                'duration': item[0].duration,
+                'stack': 'python',
+                'email': item[1]
+            }
+            for item in session.exec(query).all()]
 
 
 @router.post(
-    "/free-slots", dependencies=[Depends(get_current_interviwer_user)], response_model=InterviewSlot
+    "/free-slots", dependencies=[Depends(get_current_interviwer_user)], response_model=InterviewSlotCreate
 )
-def create_slot(*, session: SessionDep, free_slot: InterviewSlot) -> Any:
+def create_slot(*, session: SessionDep, current_user: CurrentUser, free_slot: InterviewSlotCreate) -> Any:
     """
     Create new free slot by interviewer.
     """
-    assert free_slot.to_datetime - free_slot.from_datetime >= timedelta(hours=1)
-    session.add(free_slot)
+    #assert free_slot.to_datetime - free_slot.from_datetime >= timedelta(hours=1)
+    datetime_str = f"{free_slot.date} {free_slot.time}"
+
+    format_str = "%Y-%m-%d %H:%M:%S"
+    free_slot.from_datetime = datetime.strptime(datetime_str, format_str)
+    slot_to_create = InterviewSlot()
+    slot_to_create.from_datetime = free_slot.from_datetime
+    slot_to_create.duration = free_slot.duration
+    slot_to_create.user_id = current_user.id
+    session.add(slot_to_create)
     session.commit()
-    session.refresh(free_slot)
     return free_slot
 
-
+'''
+type InterviewHistory = {
+  date: string;
+  summary: string;
+  rating: number;
+};
+'''
 @router.get(
     "/assigned_interview", dependencies=[Depends(get_current_interviwer_user)]
 )
@@ -54,9 +83,9 @@ def get_assigned_interview(*, session: SessionDep, current_user: CurrentUser) ->
             ).order_by(Interview.event_datetime.desc())
     interviews: list[Interview] = session.exec(query).all()
     return [{
-                'event_datetime': payload.event_datetime,
-                'stack_tag': payload.stack_tag,
-                'link': payload.link
+                'date': str(payload.event_datetime),
+                'summary': 'Soon...',
+                'rating': payload.mark
             } for payload in interviews]
 
 
