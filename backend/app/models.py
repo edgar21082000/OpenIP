@@ -90,8 +90,6 @@ class InterviewSlot(InterviewSlotBase, table=True):
 
 
 class InterviewSlotCreate(InterviewSlotBase):
-    date: str = Field(max_length=40)
-    time: str = Field(max_length=40)
     stack: str = Field(max_length=40, default='python')
 
 
@@ -114,6 +112,11 @@ class Interview(SQLModel, table=True):
     status: InterviewStatus =  Field(sa_column=Column(SQLEnum(InterviewStatus), nullable=False))
     mark: InterviewMark | None = Field(sa_column=Column(SQLEnum(InterviewMark), default=None))
     comments: str = Field(min_length=40)
+
+
+class MarkCreate(SQLModel):
+    interview_id: uuid.UUID = Field(default_factory=uuid.uuid4)
+    mark: str = Field(max_length=1)
 
 
 # Properties to return via API, id is always required
