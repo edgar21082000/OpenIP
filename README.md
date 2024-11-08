@@ -24,10 +24,11 @@ MVP решение состоит из 2 микросервисов - самой
 * Приглашение в комнату по ссылке
 
 Видео MVP доступно по ссылке: https://disk.yandex.ru/i/-1f0Dgyfg4S7Fg
+Презентация проекта: https://drive.google.com/file/d/1aJxcAEacuZTimc1rDOPYBtqLlGwsUA2T/view?usp=drive_link
 
 # dev
 
-docker compose watch
+```docker compose watch```
 
 # src
 
