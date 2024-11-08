@@ -231,47 +231,10 @@ def get_role(*, current_user: CurrentUser, user_id: str) -> Any:
     """
     Get user's role
     """
-    if current_user.id != user_id:
+    if str(current_user.id) != user_id:
         raise HTTPException(
             status_code=403, detail="Bad access"
         )
     return {
             'role': current_user.role
         }
-
-
-@router.get("/history/{user_id}")
-def get_history(*, session: SessionDep, current_user: CurrentUser, user_id: str) -> Any:
-    """
-    Get user's history of interviews
-    """
-    if current_user.role in [Role.applicant]:
-        if str(current_user.id) != user_id:
-            raise HTTPException(
-                status_code=403, detail="Bad access"
-            )
-
-    user: User = session.get(User, user_id)
-    if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="The user with this login does not exist in the system",
-        )
-    query = None
-    if current_user.role == Role.interviewer:
-        query = select(Interview).where(
-                    Interview.interviewer_id == user_id,
-                    Interview.status == InterviewStatus.finished
-                ).order_by(Interview.event_datetime.desc())
-    else:
-        query = select(Interview).where(
-                    Interview.applicant_id == user.id,
-                    Interview.status == InterviewStatus.finished
-                ).order_by(Interview.event_datetime.desc())
-    interviews: list[Interview] = session.exec(query).all()
-    return [{
-                'interview_id': payload.id,
-                'date': str(payload.event_datetime),
-                'summary': 'Soon...',
-                'rating': payload.mark
-            } for payload in interviews]

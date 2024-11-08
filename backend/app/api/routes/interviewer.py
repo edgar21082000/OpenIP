@@ -17,6 +17,7 @@ from app.models import (
     InterviewStatus,
     InterviewType,
     MarkCreate,
+    Role,
     User,
 )
 
@@ -43,6 +44,29 @@ def get_free_slots(*, session: SessionDep) -> Any:
                 'email': item[1]
             }
             for item in session.exec(query).all()]
+
+
+@router.get("/history")
+def get_history(*, session: SessionDep, current_user: CurrentUser) -> Any:
+    """
+    Get user's history of interviews
+    """
+    query = None
+    if current_user.role == Role.interviewer:
+        query = select(Interview).where(
+                    Interview.interviewer_id == str(current_user.id)
+                ).order_by(Interview.event_datetime.desc())
+    else:
+        query = select(Interview).where(
+                    Interview.applicant_id == str(current_user.id)
+                ).order_by(Interview.event_datetime.desc())
+    interviews: list[Interview] = session.exec(query).all()
+    return [{
+                'interview_id': str(payload.id),
+                'date': str(payload.event_datetime),
+                'summary': 'Soon...',
+                'rating': payload.mark
+            } for payload in interviews]
 
 
 @router.post(
