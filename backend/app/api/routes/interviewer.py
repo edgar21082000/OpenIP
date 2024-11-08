@@ -11,10 +11,12 @@ from app.api.deps import (
 )
 from app.models import (
     Interview,
+    InterviewMark,
     InterviewSlot,
     InterviewSlotCreate,
-    InterviewSlotSelect,
     InterviewStatus,
+    InterviewType,
+    MarkCreate,
     User,
 )
 
@@ -50,11 +52,6 @@ def create_slot(*, session: SessionDep, current_user: CurrentUser, free_slot: In
     """
     Create new free slot by interviewer.
     """
-    #assert free_slot.to_datetime - free_slot.from_datetime >= timedelta(hours=1)
-    datetime_str = f"{free_slot.date} {free_slot.time}"
-
-    format_str = "%Y-%m-%d %H:%M:%S"
-    free_slot.from_datetime = datetime.strptime(datetime_str, format_str)
     slot_to_create = InterviewSlot()
     slot_to_create.from_datetime = free_slot.from_datetime
     slot_to_create.duration = free_slot.duration
@@ -89,3 +86,37 @@ def get_assigned_interview(*, session: SessionDep, current_user: CurrentUser) ->
             } for payload in interviews]
 
 
+@router.post(
+    "/create_interview/{slot_id}"
+)
+def create_interview(*, session: SessionDep, current_user: CurrentUser, slot_id: int) -> Any:
+    """
+    Create new free slot by interviewer.
+    """
+    #assert free_slot.to_datetime - free_slot.from_datetime >= timedelta(hours=1)
+    interview = Interview()
+    slot: InterviewSlot = session.get(InterviewSlot, slot_id)
+    interview.applicant_id = current_user.id
+    interview.event_datetime = slot.from_datetime
+    interview.comments = ''
+    interview.link = 'dummylink_to_code_share'
+    interview.stack_tag = 'python'
+    interview.interviewer_id = slot.user_id
+    interview.status = InterviewStatus.waiting
+    interview.type = InterviewType.algo
+    session.add(interview)
+    session.commit()
+    return {'status': 'created'}
+
+
+@router.post(
+    "/set_mark"
+)
+def set_mark(*, session: SessionDep, payload: MarkCreate) -> Any:
+    """
+    Create new free slot by interviewer.
+    """
+    interview: Interview = session.get(Interview, payload.interview_id)
+    interview.mark = InterviewMark[payload.mark]
+    session.commit()
+    return {'status': 'mark set'}

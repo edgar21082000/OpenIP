@@ -246,7 +246,7 @@ def get_history(*, session: SessionDep, current_user: CurrentUser, user_id: str)
     Get user's history of interviews
     """
     if current_user.role in [Role.applicant, Role.interviewer]:
-        if current_user.user_id != user_id:
+        if current_user.id != user_id:
             raise HTTPException(
                 status_code=403, detail="Bad access"
             )
@@ -269,6 +269,7 @@ def get_history(*, session: SessionDep, current_user: CurrentUser, user_id: str)
             ).order_by(Interview.event_datetime.desc())
     interviews: list[Interview] = session.exec(query).all()
     return [{
+                'interview_id': payload.id,
                 'date': str(payload.event_datetime),
                 'summary': 'Soon...',
                 'rating': payload.mark
