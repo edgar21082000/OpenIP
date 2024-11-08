@@ -118,5 +118,6 @@ def set_mark(*, session: SessionDep, payload: MarkCreate) -> Any:
     """
     interview: Interview = session.get(Interview, payload.interview_id)
     interview.mark = InterviewMark[payload.mark]
+    interview.status = InterviewStatus.finished
     session.commit()
     return {'status': 'mark set'}

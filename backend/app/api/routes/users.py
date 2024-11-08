@@ -245,28 +245,29 @@ def get_history(*, session: SessionDep, current_user: CurrentUser, user_id: str)
     """
     Get user's history of interviews
     """
-    if current_user.role in [Role.applicant, Role.interviewer]:
-        if current_user.id != user_id:
+    if current_user.role in [Role.applicant]:
+        if str(current_user.id) != user_id:
             raise HTTPException(
                 status_code=403, detail="Bad access"
             )
 
-    user = session.get(User, user_id)
+    user: User = session.get(User, user_id)
     if not user:
         raise HTTPException(
             status_code=404,
             detail="The user with this login does not exist in the system",
         )
-
-    if current_user.role == Role.hr and user.role == Role.interviewer:
-        raise HTTPException(
-                status_code=403, detail="Bad access"
-            )
-
-    query = select(Interview).where(
-                Interview.interviewer_id == user_id,
-                Interview.status == InterviewStatus.finished
-            ).order_by(Interview.event_datetime.desc())
+    query = None
+    if current_user.role == Role.interviewer:
+        query = select(Interview).where(
+                    Interview.interviewer_id == user_id,
+                    Interview.status == InterviewStatus.finished
+                ).order_by(Interview.event_datetime.desc())
+    else:
+        query = select(Interview).where(
+                    Interview.applicant_id == user.id,
+                    Interview.status == InterviewStatus.finished
+                ).order_by(Interview.event_datetime.desc())
     interviews: list[Interview] = session.exec(query).all()
     return [{
                 'interview_id': payload.id,
@@ -274,9 +275,3 @@ def get_history(*, session: SessionDep, current_user: CurrentUser, user_id: str)
                 'summary': 'Soon...',
                 'rating': payload.mark
             } for payload in interviews]
-    # return [{
-    #             'event_datetime': payload.event_datetime,
-    #             'link': payload.link,
-    #             'stack_tag': payload.stack_tag,
-    #             'mark': payload.mark
-    #         } for payload in interviews]
